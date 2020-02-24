@@ -11,7 +11,7 @@ public:
     Point getZ();
     void setX(Point x);
     void setY(Point y);
-    void setZ(Point Z);
+    void setZ(Point z);
 };
 
 
