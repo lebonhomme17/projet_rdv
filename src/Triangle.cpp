@@ -5,22 +5,26 @@
 #include "Triangle.h"
 
 
-Triangle::Triangle(Point px, Point py, Point pz) : x(px), y(py), z(pz){}
-Point Triangle::getX() {
-    return x;
+Triangle::Triangle(Point pa, Point pb, Point pc) : a(pa), b(pb), c(pc){}
+Point Triangle::getA() {
+    return a;
 }
-Point Triangle::getY() {
-    return y;
+Point Triangle::getB() {
+    return b;
 }
-Point Triangle::getZ() {
-    return z;
+Point Triangle::getC() {
+    return c;
 }
-void Triangle::setX(Point x) {
-    this->x = x;
+void Triangle::setA(Point a) {
+    this->a = a;
 }
-void Triangle::setY(Point y) {
-    this->y = y;
+void Triangle::setB(Point b) {
+    this->b = b;
 }
-void Triangle::setZ(Point z) {
-    this->z = z;
+void Triangle::setC(Point c) {
+    this->c = c;
 }
+double Triangle::meanZ() {
+    return (getA().getZ()+getB().getZ()+getC().getZ())/3;
+}
+
