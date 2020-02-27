@@ -11,9 +11,9 @@
 //#include "Point.h"
 #include "Triangle.h"
 
-#define WIDTH 400
-#define HEIGHT 300
-#define ZOOM 400
+#define WIDTH 1000
+#define HEIGHT 800
+#define ZOOM 1000
 #define FILENAME "../out.ppm"
 #define OBJNAME "../obj/duck.obj"
 #define DISTANCE 30
@@ -156,7 +156,8 @@ void writePPM(vector<Triangle> &triangles) {
     ofs.open(FILENAME, ios::binary);
 
     ofs << "P6\n" << WIDTH << " " <<  HEIGHT << "\n255\n";
-    Vec3f map[HEIGHT*WIDTH];
+    Vec3f * map= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
+    cout << "ok";
     for (size_t i = 0; i < HEIGHT * WIDTH; ++i) {
         for (size_t j = 0; j < 3; j++) {
             map[i][j]=0;
@@ -168,12 +169,14 @@ void writePPM(vector<Triangle> &triangles) {
         drawTriangle(t, map);
     }
 
-    for (size_t i = HEIGHT*WIDTH-1; i >=0; --i) {
+    for (size_t i = HEIGHT*WIDTH; i >0; --i) {
         for (size_t j = 0; j < 3; j++) {
             ofs << (char)(map[i][j]*255);
         }
     }
+    free(map);
     ofs.close();
+
 }
 
 int main(){
