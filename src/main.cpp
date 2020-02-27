@@ -13,10 +13,10 @@
 
 #define WIDTH 400
 #define HEIGHT 300
-#define ZOOM 150
+#define ZOOM 400
 #define FILENAME "../out.ppm"
 #define OBJNAME "../obj/duck.obj"
-#define DISTANCE 20
+#define DISTANCE 30
 #define DISTANCE_F 2
 
 
@@ -87,8 +87,8 @@ void readOBJ(vector<Triangle> &triangles) {
 void drawTriangle(Triangle t, Vec3f* map){
     int x1, x2, x3, y1, y2, y3;
 
-    float c = (float)(rand()%155+100)/255.;
-    cout << c << endl;
+    float c = (float)(rand()%100+155)/255.;
+
     x1= round(ZOOM*t.getA().getX()*DISTANCE_F/(t.getA().getZ()+DISTANCE));
     x2= round(ZOOM*t.getB().getX()*DISTANCE_F/(t.getB().getZ()+DISTANCE));
     x3= round(ZOOM*t.getC().getX()*DISTANCE_F/(t.getC().getZ()+DISTANCE));
@@ -109,11 +109,11 @@ void drawTriangle(Triangle t, Vec3f* map){
         swap(y2, y3);
     }
 
-    int total_height = y3-y1;
+    int total_height = y3-y1+1;
     for (int y=y1; y<=y2; y++) {
         int segment_height = y2-y1+1;
         float alpha = (float)(y-y1)/total_height;
-        float beta  = (float)(y-y1)/segment_height; // be careful with divisions by zero
+        float beta  = (float)(y-y1)/segment_height;
         Vec2i A;
         A[0] = x1 + (x3-x1)*alpha;
         A[1] = y1 + (y3-y1)*alpha;
@@ -122,13 +122,17 @@ void drawTriangle(Triangle t, Vec3f* map){
         B[1] = y1 + (y2-y1)*beta;
         if (A[0]>B[0]) std::swap(A, B);
         for (int j=A[0]; j<=B[0]; j++) {
-            map[y*WIDTH+j][1]=c;
+            if(j<WIDTH && j>=0 && y<HEIGHT && y>=0) {
+                map[y * WIDTH + j][0] = c;
+                map[y * WIDTH + j][1] = c;
+                map[y * WIDTH + j][2] = c;
+            }
         }
     }
     for (int y=y2; y<=y3; y++) {
         int segment_height =  y3-y2+1;
         float alpha = (float)(y-y1)/total_height;
-        float beta  = (float)(y-y2)/segment_height; // be careful with divisions by zero
+        float beta  = (float)(y-y2)/segment_height;
         Vec2i A;
         A[0] = x1 + (x3-x1)*alpha;
         A[1] = y1 + (y3-y1)*alpha;
@@ -137,33 +141,18 @@ void drawTriangle(Triangle t, Vec3f* map){
         B[1]= y2 + (y3-y2)*beta;
         if (A[0]>B[0]) std::swap(A, B);
         for (int j=A[0]; j<=B[0]; j++) {
-            map[y*WIDTH+j][1]=c;
+            if(j<WIDTH && j>=0 && y<HEIGHT && y>=0) {
+                map[y * WIDTH + j][0] = c;
+                map[y * WIDTH + j][1] = c;
+                map[y * WIDTH + j][2] = c;
+            }
         }
     }
-
-
-
-
-    if(x1<WIDTH && x1>=0 && y1<HEIGHT && y1>=0) {
-        map[(int) (y1 * WIDTH + x1)][0] = 1.;
-        //cout << x1 << " : " << y1 << endl;
-    }
-    if(x2<WIDTH && x2>=0 && y2<HEIGHT && y2>=0) {
-        map[(int) (y2 * WIDTH + x2)][0] = 1.;
-        //cout << x2 << " : " << y2 << endl;
-    }
-    if(x3<WIDTH && x3>=0 && y3<HEIGHT && y3>=0) {
-        map[(int) (y3 * WIDTH + x3)][0] = 1.;
-        //cout << x3 << " : " << y3 << endl;
-    }
-
-
-
 }
 
 
 void writePPM(vector<Triangle> &triangles) {
-    ofstream ofs; // save the framebuffer to file
+    ofstream ofs;
     ofs.open(FILENAME, ios::binary);
 
     ofs << "P6\n" << WIDTH << " " <<  HEIGHT << "\n255\n";
@@ -174,9 +163,11 @@ void writePPM(vector<Triangle> &triangles) {
         }
     }
     sort(triangles.begin(), triangles.end(), comp);
+
     for(Triangle t : triangles){
         drawTriangle(t, map);
     }
+
     for (size_t i = HEIGHT*WIDTH-1; i >=0; --i) {
         for (size_t j = 0; j < 3; j++) {
             ofs << (char)(map[i][j]*255);
