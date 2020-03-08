@@ -84,6 +84,9 @@ void readOBJ(vector<Triangle> &triangles) {
     flux.close();
 }
 
+
+
+
 void drawTriangle(Triangle t, Vec3f* map){
     int x1, x2, x3, y1, y2, y3;
 
@@ -185,6 +188,11 @@ int main(){
     readOBJ(triangle);
 
     cout << "nb triangles : " << triangle.size() << endl;
+
+    float *zbuffer = new float[WIDTH*HEIGHT];
+    for(int i = WIDTH*HEIGHT; i >= 0; i--){
+        zbuffer[i] = numeric_limits<float>::max();
+    }
 
     writePPM(triangle);
 	return 0;
