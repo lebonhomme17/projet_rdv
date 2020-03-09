@@ -193,7 +193,7 @@ void drawTriangle(Triangle t, Vec3f* map, float* z_buffer){
 }
 
 
-void writePPM(vector<Triangle> &triangles, Vec3f *map){
+void writePPM(Vec3f *map){
     ofstream ofs;
     ofs.open(FILENAME, ios::binary);
 
@@ -208,6 +208,20 @@ void writePPM(vector<Triangle> &triangles, Vec3f *map){
     free(map);
     ofs.close();
 
+}
+
+void stereo_rendering(Vec3f *map){
+    Vec3f *redmap= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
+    Vec3f *bluemap= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
+
+    for (size_t i = 0; i < HEIGHT * WIDTH; ++i) {
+        for (size_t j = 0; j < 3; j++) {
+            redmap[i][j] = map[i-DISTANCE_F][j];
+            bluemap[i][j] = map[i+DISTANCE_F][j];
+        }
+    }
+
+    writePPM(redmap);
 }
 
 int main(){
@@ -233,6 +247,8 @@ int main(){
         drawTriangle(t, map, zbuffer);
     }
 
-    writePPM(triangle, map);
+    //writePPM(map);
+
+    stereo_rendering(map);
 	return 0;
 }
