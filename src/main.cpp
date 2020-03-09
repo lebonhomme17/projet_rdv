@@ -19,6 +19,7 @@
 #define OBJNAME "../obj/duck.obj"
 #define DISTANCE 20
 #define DISTANCE_F 2
+#define FOCALE 10
 
 
 using namespace std;
@@ -211,17 +212,19 @@ void writePPM(Vec3f *map){
 }
 
 void stereo_rendering(Vec3f *map){
-    Vec3f *redmap= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
-    Vec3f *bluemap= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
+    Vec3f *stereomap= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
 
     for (size_t i = 0; i < HEIGHT * WIDTH; ++i) {
-        for (size_t j = 0; j < 3; j++) {
-            redmap[i][j] = map[i-DISTANCE_F][j];
-            bluemap[i][j] = map[i+DISTANCE_F][j];
+        if((i%WIDTH)>FOCALE && (WIDTH-(i%WIDTH))>FOCALE) {
+            stereomap[i][0] = map[i - FOCALE][0];
+            stereomap[i][1] = map[i][1];
+            stereomap[i][2] = map[i + FOCALE][2];
+        }else{
+            stereomap[i]=map[i];
         }
     }
 
-    writePPM(redmap);
+    writePPM(stereomap);
 }
 
 int main(){
