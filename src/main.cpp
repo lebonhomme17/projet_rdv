@@ -10,6 +10,7 @@
 #include <ctime>
 //#include "Point.h"
 #include "Triangle.h"
+#include "Geom.h"
 
 #define WIDTH 1000
 #define HEIGHT 800
@@ -21,17 +22,6 @@
 
 
 using namespace std;
-
-template <size_t DIM, typename T> struct vec {
-    vec() { for (size_t i=DIM; i--; data_[i] = T()); }
-    T& operator[](const size_t i)       { assert(i<DIM); return data_[i]; }
-    const T& operator[](const size_t i) const { assert(i<DIM); return data_[i]; }
-private:
-    T data_[DIM];
-};
-
-typedef vec<3, float> Vec3f;
-typedef vec<2, int> Vec2i;
 
 bool comp(Triangle t1, Triangle t2){
     return t1.meanZ()>t2.meanZ();
@@ -84,7 +74,25 @@ void readOBJ(vector<Triangle> &triangles) {
     flux.close();
 }
 
+/*void drawTriangleV2(Triangle t, Vec3f* map, float *zbuffer){
+    Vec2f boxmin;
+    boxmin[0] = numeric_limits<float>::max();
+    boxmin[1] = numeric_limits<float>::max();
 
+    Vec2f boxmax;
+    boxmax[0] = -numeric_limits<float>::max();
+    boxmax[1] = -numeric_limits<float>::max();
+
+    Vec2f last;
+    last[0] = WIDTH - 1;
+    last[1] = HEIGHT - 1;
+
+    for(int i = 0; i <= 3; i++){
+        for(int j = 0; j <= 2; j++){
+            
+        }
+    }
+}*/
 
 
 void drawTriangle(Triangle t, Vec3f* map){
@@ -154,23 +162,12 @@ void drawTriangle(Triangle t, Vec3f* map){
 }
 
 
-void writePPM(vector<Triangle> &triangles) {
+void writePPM(vector<Triangle> &triangles, Vec3f *map){
     ofstream ofs;
     ofs.open(FILENAME, ios::binary);
 
     ofs << "P6\n" << WIDTH << " " <<  HEIGHT << "\n255\n";
-    Vec3f * map= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
     cout << "ok";
-    for (size_t i = 0; i < HEIGHT * WIDTH; ++i) {
-        for (size_t j = 0; j < 3; j++) {
-            map[i][j]=0;
-        }
-    }
-    sort(triangles.begin(), triangles.end(), comp);
-
-    for(Triangle t : triangles){
-        drawTriangle(t, map);
-    }
 
     for (size_t i = HEIGHT*WIDTH; i >0; --i) {
         for (size_t j = 0; j < 3; j++) {
@@ -189,11 +186,23 @@ int main(){
 
     cout << "nb triangles : " << triangle.size() << endl;
 
+    Vec3f *map= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
+    for (size_t i = 0; i < HEIGHT * WIDTH; ++i) {
+        for (size_t j = 0; j < 3; j++) {
+            map[i][j]=0;
+        }
+    }
+
     float *zbuffer = new float[WIDTH*HEIGHT];
     for(int i = WIDTH*HEIGHT; i >= 0; i--){
         zbuffer[i] = numeric_limits<float>::max();
     }
+    sort(triangle.begin(), triangle.end(), comp);
 
-    writePPM(triangle);
+    for(Triangle t : triangle){
+        drawTriangle(t, map);
+    }
+
+    writePPM(triangle, map);
 	return 0;
 }
