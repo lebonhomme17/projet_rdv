@@ -74,26 +74,6 @@ void readOBJ(vector<Triangle> &triangles) {
     flux.close();
 }
 
-/*void drawTriangleV2(Triangle t, Vec3f* map, float *zbuffer){
-    Vec2f boxmin;
-    boxmin[0] = numeric_limits<float>::max();
-    boxmin[1] = numeric_limits<float>::max();
-
-    Vec2f boxmax;
-    boxmax[0] = -numeric_limits<float>::max();
-    boxmax[1] = -numeric_limits<float>::max();
-
-    Vec2f last;
-    last[0] = WIDTH - 1;
-    last[1] = HEIGHT - 1;
-
-    for(int i = 0; i <= 3; i++){
-        for(int j = 0; j <= 2; j++){
-            
-        }
-    }
-}*/
-
 
 void drawTriangle(Triangle t, Vec3f* map){
     int x1, x2, x3, y1, y2, y3;
@@ -162,7 +142,7 @@ void drawTriangle(Triangle t, Vec3f* map){
 }
 
 
-void writePPM(vector<Triangle> &triangles, Vec3f *map){
+void writePPM(Vec3f *map){
     ofstream ofs;
     ofs.open(FILENAME, ios::binary);
 
@@ -174,9 +154,24 @@ void writePPM(vector<Triangle> &triangles, Vec3f *map){
             ofs << (char)(map[i][j]*255);
         }
     }
+
     free(map);
     ofs.close();
 
+}
+
+void stereo_rendering(Vec3f *map){
+    Vec3f *redmap= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
+    Vec3f *bluemap= (Vec3f*)malloc(WIDTH*HEIGHT*sizeof(Vec3f));
+
+    for (size_t i = 0; i < HEIGHT * WIDTH; ++i) {
+        for (size_t j = 0; j < 3; j++) {
+            redmap[i][j] = map[i-DISTANCE_F][j];
+            bluemap[i][j] = map[i+DISTANCE_F][j];
+        }
+    }
+
+    writePPM(redmap);
 }
 
 int main(){
@@ -203,6 +198,8 @@ int main(){
         drawTriangle(t, map);
     }
 
-    writePPM(triangle, map);
+    stereo_rendering(map);
+
+    //writePPM(map);
 	return 0;
 }
