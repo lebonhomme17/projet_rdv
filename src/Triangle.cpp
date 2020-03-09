@@ -24,7 +24,5 @@ void Triangle::setB(Point b) {
 void Triangle::setC(Point c) {
     this->c = c;
 }
-double Triangle::meanZ() {
-    return (getA().getZ()+getB().getZ()+getC().getZ())/3;
-}
+
 

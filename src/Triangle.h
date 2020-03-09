@@ -12,7 +12,8 @@ public:
     void setA(Point a);
     void setB(Point b);
     void setC(Point c);
-    double meanZ();
+
+
 };
 
 

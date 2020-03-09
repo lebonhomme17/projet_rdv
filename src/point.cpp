@@ -1,26 +1,26 @@
 #include "Point.h"
 #include <iostream>
 
-Point::Point(double x, double y, double z) {
+Point::Point(float x, float y, float z) {
 	this->x = x;
 	this->y = y;
 	this->z = z;
 }
-double Point::getX() {
+float Point::getX() {
 	return x;
 }
-double Point::getY() {
+float Point::getY() {
 	return y;
 }
-double Point::getZ() {
+float Point::getZ() {
 	return z;
 }
-void Point::setX(double x) {
+void Point::setX(float x) {
 	this->x = x;
 }
-void Point::setY(double y) {
+void Point::setY(float y) {
 	this->y = y;
 }
-void Point::setZ(double z) {
+void Point::setZ(float z) {
 	this->z = z;
 }
