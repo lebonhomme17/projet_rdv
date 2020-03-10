@@ -12,6 +12,7 @@ public:
 	void setX(float x);
 	void setY(float y);
 	void setZ(float Z);
+	void translate(float x, float y, float z);
 };
 
 

@@ -12,8 +12,7 @@ public:
     void setA(Point a);
     void setB(Point b);
     void setC(Point c);
-
-
+    void translate(float x, float y, float z);
 };
 
 

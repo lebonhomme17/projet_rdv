@@ -24,3 +24,9 @@ void Point::setY(float y) {
 void Point::setZ(float z) {
 	this->z = z;
 }
+
+void Point::translate(float x, float y, float z){
+    this->x+=x;
+    this->y+=y;
+    this->z+=z;
+}

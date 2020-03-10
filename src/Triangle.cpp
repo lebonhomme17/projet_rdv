@@ -24,5 +24,10 @@ void Triangle::setB(Point b) {
 void Triangle::setC(Point c) {
     this->c = c;
 }
+void Triangle::translate(float x, float y, float z){
+    a.translate(x,y,z);
+    b.translate(x,y,z);
+    c.translate(x,y,z);
+}
 
 

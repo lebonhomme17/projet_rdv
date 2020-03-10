@@ -12,14 +12,15 @@
 #include "Triangle.h"
 #include "Geom.h"
 
-#define WIDTH 1000
+#define WIDTH 1500
 #define HEIGHT 800
 #define ZOOM 300
 #define FILENAME "../out.ppm"
-#define OBJNAME "../obj/duck.obj"
-#define DISTANCE 20
-#define DISTANCE_F 2
-#define FOCALE 10
+#define FILENAME_STEREO "../outstereo.ppm"
+#define OBJNAME "../obj/africanhead.obj"
+#define DISTANCE 10
+#define DISTANCE_F 5
+#define FOCALE 5
 
 
 using namespace std;
@@ -45,7 +46,7 @@ void readOBJ(vector<Triangle> &triangles) {
 
                 getline(ss, z, ' ');
 
-                Point p = Point(stod(x), stod(y)+5, stod(z));
+                Point p = Point(stod(x), stod(y), -stod(z));
                 points.push_back(p);
                 //cout << "x=" << x << " y=" << y << " z=" << z;
             }
@@ -63,6 +64,24 @@ void readOBJ(vector<Triangle> &triangles) {
                 triangles.push_back(t);
             }
         }
+        float meanX=0;
+        float meanY=0;
+        float meanZ=0;
+        for(Point p : points){
+            meanX+=p.getX();
+            meanY+=p.getY();
+            meanZ+=p.getZ();
+        }
+        meanX/=points.size();
+        meanY/=points.size();
+        meanZ/=points.size();
+
+        cout << meanX << " : " << meanY << " : " << meanZ << endl;
+        for(Triangle t : triangles){
+            cout << "avant : " << t.getA().getX() << endl;
+            t.translate(-meanX,-meanY,-meanZ);
+            cout << "apres : " << t.getA().getX() << endl;
+        }
     }
     else {
         cout << "echec ouverture fichier obj";
@@ -73,36 +92,17 @@ void readOBJ(vector<Triangle> &triangles) {
     flux.close();
 }
 
-/*void drawTriangleV2(Triangle t, Vec3f* map, float *zbuffer){
-    Vec2f boxmin;
-    boxmin[0] = numeric_limits<float>::max();
-    boxmin[1] = numeric_limits<float>::max();
-
-    Vec2f boxmax;
-    boxmax[0] = -numeric_limits<float>::max();
-    boxmax[1] = -numeric_limits<float>::max();
-
-    Vec2f last;
-    last[0] = WIDTH - 1;
-    last[1] = HEIGHT - 1;
-
-    for(int i = 0; i <= 3; i++){
-        for(int j = 0; j <= 2; j++){
-            
-        }
-    }
-}*/
-
 float zVal(Triangle t, int x, int y){
-    return t.getA().getZ();
+    return (t.getA().getZ()+t.getB().getZ()+t.getC().getZ())/3.f;
 
 }
 
 Point norm(Triangle t){
     float x = (t.getB().getY()-t.getA().getY())*(t.getC().getZ()-t.getA().getZ()) - (t.getB().getZ()-t.getA().getZ())*(t.getC().getY()-t.getA().getY());
-    float y = (t.getB().getZ())*(t.getC().getX()-t.getA().getX()) - (t.getB().getX()-t.getA().getX())*(t.getC().getZ()-t.getA().getZ());
+    float y = (t.getB().getZ()-t.getA().getZ())*(t.getC().getX()-t.getA().getX()) - (t.getB().getX()-t.getA().getX())*(t.getC().getZ()-t.getA().getZ());
     float z = (t.getB().getX()-t.getA().getX())*(t.getC().getY()-t.getA().getY()) - (t.getB().getY()-t.getA().getY())*(t.getC().getX()-t.getA().getX());
-    return Point(x, y, z);
+    float norm = sqrt(x*x+y*y+z*z);
+    return Point(x/norm, y/norm, z/norm);
 }
 
 float crossp(Point p1, Point p2){
@@ -114,6 +114,7 @@ void drawTriangle(Triangle t, Vec3f* map, float* z_buffer){
     int x1, x2, x3, y1, y2, y3;
 
     float intensite = crossp(lightdir, norm(t));
+    cout << intensite << endl;
     if(intensite<0){
         intensite = -intensite;
     }
@@ -122,9 +123,9 @@ void drawTriangle(Triangle t, Vec3f* map, float* z_buffer){
     x1= round(ZOOM*t.getA().getX()*DISTANCE_F/(t.getA().getZ()+DISTANCE))+WIDTH/2;
     x2= round(ZOOM*t.getB().getX()*DISTANCE_F/(t.getB().getZ()+DISTANCE))+WIDTH/2;
     x3= round(ZOOM*t.getC().getX()*DISTANCE_F/(t.getC().getZ()+DISTANCE))+WIDTH/2;
-    y1= round(ZOOM*t.getA().getY()*DISTANCE_F/(t.getA().getZ()+DISTANCE));
-    y2= round(ZOOM*t.getB().getY()*DISTANCE_F/(t.getB().getZ()+DISTANCE));
-    y3= round(ZOOM*t.getC().getY()*DISTANCE_F/(t.getC().getZ()+DISTANCE));
+    y1= round(ZOOM*t.getA().getY()*DISTANCE_F/(t.getA().getZ()+DISTANCE))+HEIGHT/2;
+    y2= round(ZOOM*t.getB().getY()*DISTANCE_F/(t.getB().getZ()+DISTANCE))+HEIGHT/2;
+    y3= round(ZOOM*t.getC().getY()*DISTANCE_F/(t.getC().getZ()+DISTANCE))+HEIGHT/2;
 
     Triangle temp = Triangle(Point(x1, y1, t.getA().getZ()), Point(x2, y2, t.getB().getZ()), Point(x3, y3, t.getC().getZ()));
     float z;
@@ -194,19 +195,18 @@ void drawTriangle(Triangle t, Vec3f* map, float* z_buffer){
 }
 
 
-void writePPM(Vec3f *map){
+void writePPM(Vec3f *map, string file){
     ofstream ofs;
-    ofs.open(FILENAME, ios::binary);
+    ofs.open(file, ios::binary);
 
     ofs << "P6\n" << WIDTH << " " <<  HEIGHT << "\n255\n";
-    cout << "ok";
 
     for (size_t i = HEIGHT*WIDTH; i >0; --i) {
         for (size_t j = 0; j < 3; j++) {
             ofs << (char)(map[i][j]*255);
         }
     }
-    free(map);
+
     ofs.close();
 
 }
@@ -216,15 +216,15 @@ void stereo_rendering(Vec3f *map){
 
     for (size_t i = 0; i < HEIGHT * WIDTH; ++i) {
         if((i%WIDTH)>FOCALE && (WIDTH-(i%WIDTH))>FOCALE) {
-            stereomap[i][0] = map[i - FOCALE][0];
-            stereomap[i][1] = map[i][1];
-            stereomap[i][2] = map[i + FOCALE][2];
+            stereomap[i][0] = map[i + FOCALE][0];
+            stereomap[i][1] = 0;
+            stereomap[i][2] = map[i - FOCALE][2];
         }else{
             stereomap[i]=map[i];
         }
     }
 
-    writePPM(stereomap);
+    writePPM(stereomap, FILENAME_STEREO);
 }
 
 int main(){
@@ -250,8 +250,10 @@ int main(){
         drawTriangle(t, map, zbuffer);
     }
 
-    //writePPM(map);
+    writePPM(map, FILENAME);
 
     stereo_rendering(map);
+
+    free(map);
 	return 0;
 }
