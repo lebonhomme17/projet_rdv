@@ -15,8 +15,8 @@
 #define WIDTH 1800
 #define HEIGHT 1000
 #define ZOOM 200
-#define FILENAME "../out.ppm"
-#define FILENAME_STEREO "../outstereo.ppm"
+#define FILENAME "../duck.ppm"
+#define FILENAME_STEREO "../duck_stereo.ppm"
 #define OBJNAME "../obj/duck.obj"
 #define DISTANCE 5
 #define DISTANCE_F 2
