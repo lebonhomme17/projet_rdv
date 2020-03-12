@@ -18,7 +18,7 @@ Il y a 2 fichiers bitmap en sorti :
 - "outstereo.ppm" : rendu de l'anaglyphe.
   
 <h2>Pour compiler :</h2> 
-  <code>mkdir build </code>
-  <code> cd build </code>
-  <code>cmake .. </code>
-  <code> make </code>
+  <code>mkdir build </code><br/>
+  <code> cd build </code><br/>
+  <code>cmake .. </code><br/>
+  <code> make </code><br/>
